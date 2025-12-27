@@ -156,11 +156,22 @@ export function Statistics() {
                                     <h3 className="text-2xl font-bold dark:text-gray-100">
                                         {displayStats.predictedNextMonth !== null ? `₹${Number(displayStats.predictedNextMonth).toFixed(2)}` : 'N/A'}
                                     </h3>
-                                    {(displayStats.predictionMessage || displayStats.predictionNote) && (
-                                        <p className="text-xs text-gray-400 mt-1">
-                                            {displayStats.predictionMessage || displayStats.predictionNote}
-                                            {displayStats.predictionConfidence && ` (${displayStats.predictionConfidence} confidence)`}
-                                        </p>
+                                    {displayStats.predictionConfidence && (
+                                        <div className="mt-1">
+                                            <p className={`text-xs font-semibold uppercase tracking-wider ${displayStats.predictionConfidence === 'high' ? 'text-green-500' :
+                                                    displayStats.predictionConfidence === 'medium' ? 'text-blue-500' :
+                                                        displayStats.predictionConfidence === 'low' ? 'text-orange-500' :
+                                                            'text-gray-400'
+                                                }`}>
+                                                {displayStats.predictionConfidence} Confidence
+                                            </p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                {displayStats.predictionConfidence === 'high' && "Based on a solid 3-month spending history."}
+                                                {displayStats.predictionConfidence === 'medium' && "Based on 2 months of data; trends are starting to form."}
+                                                {displayStats.predictionConfidence === 'low' && "Based on only 1 month of data; may not be accurate."}
+                                                {displayStats.predictionConfidence === 'none' && "Not enough historical data to generate a reliable prediction."}
+                                            </p>
+                                        </div>
                                     )}
                                 </div>
                             </div>

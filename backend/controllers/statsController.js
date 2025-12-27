@@ -85,47 +85,51 @@ const getPrediction = async (req, res, next) => {
     try {
         const { userId } = req.params;
 
-        // Get monthly totals for the last 3 months (excluding current month)
         const sql = `
-            SELECT MONTH(date) as month, YEAR(date) as year, SUM(amount) as total
-            FROM Expenses
-            WHERE user_id = ? 
-            AND date >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 3 MONTH)
-            AND date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
-            GROUP BY year, month
-            ORDER BY year DESC, month DESC
-        `;
+      SELECT 
+        YEAR(date) AS year,
+        MONTH(date) AS month,
+        SUM(amount) AS total
+      FROM Expenses
+      WHERE user_id = ?
+        AND date >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 3 MONTH)
+        AND date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
+      GROUP BY year, month
+      ORDER BY year DESC, month DESC
+    `;
 
         const [rows] = await db.query(sql, [userId]);
 
+        // ❌ No data at all
         if (rows.length === 0) {
             return res.json({
                 predictedAmount: null,
-                message: "Not enough data to generate prediction"
+                confidence: "none",
+                message: "No historical data available for prediction"
             });
         }
 
-        const totalSum = rows.reduce((acc, row) => acc + Number(row.total), 0);
-        const monthCount = rows.length;
-        const predictedAmount = totalSum / monthCount;
+        // ✅ Calculate average
+        const total = rows.reduce((sum, r) => sum + Number(r.total), 0);
+        const monthsCount = rows.length;
+        const predictedAmount = total / monthsCount;
 
-        if (monthCount === 1) {
-            return res.json({
-                predictedAmount,
-                confidence: "low",
-                note: "Prediction based on only 1 month of data"
-            });
-        }
+        // 🎯 Confidence logic
+        let confidence = "low";
+        if (monthsCount === 2) confidence = "medium";
+        if (monthsCount >= 3) confidence = "high";
 
-        res.json({
+        return res.json({
             predictedAmount,
-            confidence: monthCount === 3 ? "high" : "medium",
-            monthsAnalyzed: monthCount
+            confidence,
+            monthsAnalyzed: monthsCount
         });
+
     } catch (error) {
         next(error);
     }
 };
+
 
 module.exports = {
     getTopSpendingDays,
