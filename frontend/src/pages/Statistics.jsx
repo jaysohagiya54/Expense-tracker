@@ -14,6 +14,8 @@ export function Statistics() {
         topDays: [],
         momChange: 0,
         momMessage: '',
+        currentMonthTotal: 0,
+        previousMonthTotal: 0,
         predictedNextMonth: 0,
         predictionMessage: '',
         predictionNote: '',
@@ -40,6 +42,8 @@ export function Statistics() {
                     topDays: Array.isArray(topDaysRes.data) ? topDaysRes.data : topDaysRes.data.data,
                     momChange: momRes.data.percentageChange,
                     momMessage: momRes.data.message,
+                    currentMonthTotal: momRes.data.currentMonth,
+                    previousMonthTotal: momRes.data.previousMonth,
                     predictedNextMonth: predRes.data.predictedAmount,
                     predictionMessage: predRes.data.message,
                     predictionNote: predRes.data.note,
@@ -139,9 +143,21 @@ export function Statistics() {
                                     <h3 className="text-2xl font-bold dark:text-gray-100">
                                         {displayStats.momChange !== null ? `${Number(displayStats.momChange).toFixed(1)}%` : 'N/A'}
                                     </h3>
-                                    {displayStats.momMessage && (
-                                        <p className="text-xs text-gray-400 mt-1">{displayStats.momMessage}</p>
-                                    )}
+                                    <div className="flex flex-col gap-1 mt-1">
+                                        {displayStats.currentMonthTotal !== undefined && (
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                Current: <span className="font-semibold text-gray-900 dark:text-gray-100">₹{Number(displayStats.currentMonthTotal).toFixed(2)}</span>
+                                            </p>
+                                        )}
+                                        {displayStats.previousMonthTotal !== undefined && (
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                Previous: <span className="font-semibold text-gray-900 dark:text-gray-100">₹{Number(displayStats.previousMonthTotal).toFixed(2)}</span>
+                                            </p>
+                                        )}
+                                        {displayStats.momMessage && (
+                                            <p className="text-xs text-gray-400 italic">{displayStats.momMessage}</p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </Card>
@@ -159,9 +175,9 @@ export function Statistics() {
                                     {displayStats.predictionConfidence && (
                                         <div className="mt-1">
                                             <p className={`text-xs font-semibold uppercase tracking-wider ${displayStats.predictionConfidence === 'high' ? 'text-green-500' :
-                                                    displayStats.predictionConfidence === 'medium' ? 'text-blue-500' :
-                                                        displayStats.predictionConfidence === 'low' ? 'text-orange-500' :
-                                                            'text-gray-400'
+                                                displayStats.predictionConfidence === 'medium' ? 'text-blue-500' :
+                                                    displayStats.predictionConfidence === 'low' ? 'text-orange-500' :
+                                                        'text-gray-400'
                                                 }`}>
                                                 {displayStats.predictionConfidence} Confidence
                                             </p>
