@@ -1,0 +1,7 @@
+frontend/.gitignore
+backend/.gitignore  
+
+
+
+frontend/.env
+backend/.env
